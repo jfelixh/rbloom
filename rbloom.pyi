@@ -1,5 +1,5 @@
 import os
-from typing import Any, Callable, Iterable, Union, final
+from typing import Any, Callable, Iterable, Union, final, Optional
 
 
 @final
@@ -8,8 +8,9 @@ class Bloom:
     # expected_items:  max number of items to be added to the filter
     # false_positive_rate:  max false positive rate of the filter
     # hash_func:  optional argument, see section "Cryptographic security"
+    # k_override: allows setting an override for the parameter k
     def __init__(self, expected_items: int, false_positive_rate: float,
-                 hash_func=__builtins__.hash) -> None: ...
+                 hash_func=__builtins__.hash, k_override: Optional[int]=None) -> None: ...
 
     # number of buckets in the filter
     @property

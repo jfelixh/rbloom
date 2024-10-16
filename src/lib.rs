@@ -4,6 +4,7 @@ use pyo3::prelude::*;
 use pyo3::sync::GILOnceCell;
 use pyo3::types::PyType;
 use pyo3::{basic::CompareOp, types::PyBytes, types::PyTuple, PyTraverseError, PyVisit};
+use std::cmp;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::mem;
@@ -25,6 +26,7 @@ impl Bloom {
         expected_items: u64,
         false_positive_rate: f64,
         hash_func: Option<Bound<'_, PyAny>>,
+        k_override: Option<u64>,
     ) -> PyResult<Self> {
         // Check the inputs
         if false_positive_rate <= 0.0 || false_positive_rate >= 1.0 {
@@ -50,12 +52,18 @@ impl Bloom {
         // Calculate the parameters for the filter
         let size_in_bits =
             -1.0 * (expected_items as f64) * false_positive_rate.ln() / 2.0f64.ln().powi(2);
-        let k = (size_in_bits / expected_items as f64) * 2.0f64.ln();
+        let k = match k_override {
+            Some(k_value) => k_value,
+            _ => cmp::min(
+                ((size_in_bits / expected_items as f64) * 2.0f64.ln()) as u64,
+                1,
+            ),
+        };
 
         // Create the filter
         Ok(Bloom {
             filter: BitLine::new(size_in_bits as u64)?,
-            k: k as u64,
+            k,
             hash_func,
         })
     }
