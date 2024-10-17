@@ -54,7 +54,7 @@ impl Bloom {
             -1.0 * (expected_items as f64) * false_positive_rate.ln() / 2.0f64.ln().powi(2);
         let k = match k_override {
             Some(k_value) => k_value,
-            _ => cmp::min(
+            _ => cmp::max(
                 ((size_in_bits / expected_items as f64) * 2.0f64.ln()) as u64,
                 1,
             ),
